@@ -1,0 +1,39 @@
+version: '3'
+
+# Run as
+# docker-compose build; docker-compose up -d
+# Check with
+# docker ps
+# Then check the logs with
+# docker logs --tail 50 $container_id
+# docker-compose logs --tail 20 tf_counts
+
+# To test out the redis instance
+# docker-compose exec r-instance bash
+# This drops you into the shell on the r-instance container
+# You can run ./set_some_redis_values.R
+# NOTE
+# The host you connect to MUST match the name of the redis service in this file!!
+
+services:
+
+# Name of redis service
+# If you change this be sure to update your connection settings
+  redis:
+    image: redis:alpine
+    networks:
+      - proxy
+
+  r-instance:
+    build:
+      context: . 
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    networks:
+      - proxy
+    command: tail -f /dev/null
+
+networks:
+  proxy:
+    driver: bridge
